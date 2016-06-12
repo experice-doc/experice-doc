@@ -13,4 +13,5 @@
     3. [linux group](200.system/linux-group.md)
     4. [linux shell脚本](200.system/linux-shell.md)
     5. [linux read 命令](200.system/linux-reade.md)
+    6. [nginx 优化](200.system/nginx.md)
 
