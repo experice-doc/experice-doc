@@ -69,3 +69,131 @@ user和pid应该按默认设置 - 我们不会更改这些内容，因为更改�
 
 #### access_log
     设置nginx是否将存储访问日志。关闭这个选项可以让读取磁盘IO操作更快(aka,YOLO)
+
+#### error_log
+```
+    keepalive_timeout 10; 
+    client_header_timeout 10; 
+    client_body_timeout 10; 
+    reset_timedout_connection on; 
+    send_timeout 10
+    
+    client_header_timeout 和client_body_timeout 设置请求头和请求体(各自)的超时时间。我们也可以把这个设置低些。
+    
+    reset_timeout_connection 告诉nginx关闭不响应的客户端连接。这将会释放那个客户端所占有的内存空间。
+    
+    send_timeout 指定客户端的响应超时时间。这个设置不会用于整个转发器，而是在两次客户端读取操作之间。如果在这段时间内，客户端没有读取任何数据，nginx就会关闭连接。
+```
+
+#### limit
+```
+    limit_conn_zone $binary_remote_addr zone=addr:5m; 
+    limit_conn addr 100; 
+
+    limit_conn_zone 设置用于保存各种key（比如当前连接数）的共享内存的参数。5m就是5兆字节，这个值应该被设置的足够大以存储（32K*5）32byte状态或者（16K*5）64byte状态。
+
+    limit_conn 为给定的key设置最大连接数。这里key是addr，我们设置的值是100，也就是说我们允许每一个IP地址最多同时打开有100个连接
+```
+
+####文件
+```
+    include /etc/nginx/mime.types; 
+    default_type text/html; 
+    charset UTF-8; 
+
+    include 只是一个在当前文件中包含另一个文件内容的指令。这里我们使用它来加载稍后会用到的一系列的MIME类型。
+
+    default_type 设置文件使用的默认的MIME-type。
+
+    charset 设置我们的头文件中的默认的字符集
+
+```
+
+#### gzip
+```
+    gzip on; 
+    gzip_disable "msie6"; 
+    # gzip_static on; 
+    gzip_proxied any; 
+    gzip_min_length 1000; 
+    gzip_comp_level 4; 
+    gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript; 
+
+    gzip 是告诉nginx采用gzip压缩的形式发送数据。这将会减少我们发送的数据量。
+
+    gzip_disable 为指定的客户端禁用gzip功能。我们设置成IE6或者更低版本以使我们的方案能够广泛兼容。
+    
+    gzip_static 告诉nginx在压缩资源之前，先查找是否有预先gzip处理过的资源。这要求你预先压缩你的文件（在这个例子中被注释掉了），从而允许你使用最高压缩比，这样nginx就不用再压缩这些文件了
+    
+    gzip_proxied 允许或者禁止压缩基于请求和响应的响应流。我们设置为any，意味着将会压缩所有的请求。
+    
+    gzip_min_length 设置对数据启用压缩的最少字节数。如果一个请求小于1000字节，我们最好不要压缩它，因为压缩这些小的数据会降低处理此请求的所有进程的速度。
+    
+    gzip_comp_level 设置数据的压缩等级。这个等级可以是1-9之间的任意数值，9是最慢但是压缩比最大的。我们设置为4，这是一个比较折中的设置。
+```
+#### gzip_type
+```
+    # cache informations about file descriptors, frequently accessed files 
+    # can boost performance, but you need to test those values 
+    open_file_cache max=100000 inactive=20s; 
+    open_file_cache_valid 30s; 
+    open_file_cache_min_uses 2; 
+    open_file_cache_errors on; 
+    ## 
+    # Virtual Host Configs 
+    # aka our settings for specific servers 
+    ## 
+    include /etc/nginx/conf.d/*.conf; 
+    include /etc/nginx/sites-enabled/*; 
+
+    open_file_cache 打开缓存的同时也指定了缓存最大数目，以及缓存的时间。我们可以设置一个相对高的最大时间，这样我们可以在它们不活动超过20秒后清除掉。
+
+    open_file_cache_valid 在open_file_cache中指定检测正确信息的间隔时间。
+    
+    open_file_cache_min_uses 定义了open_file_cache中指令参数不活动时间期间里最小的文件数。
+    
+    open_file_cache_errors 指定了当搜索一个文件时是否缓存错误信息，也包括再次给配置中添加文件。我们也包括了服务器模块，这些是在不同文件中定义的。如果你的服务器模块不在这些位置，你就得修改这一行来指定正确的位置。
+```
+
+#### 一个完整的配置文件
+```
+user www-data; 
+pid /var/run/nginx.pid; 
+worker_processes auto; 
+worker_rlimit_nofile 100000; 
+events { 
+    worker_connections 2048; 
+    multi_accept on; 
+    use epoll; 
+} 
+http { 
+    server_tokens off; 
+    sendfile on; 
+    tcp_nopush on; 
+    tcp_nodelay on; 
+    access_log off; 
+    error_log /var/log/nginx/error.log crit; 
+    keepalive_timeout 10; 
+    client_header_timeout 10; 
+    client_body_timeout 10; 
+    reset_timedout_connection on; 
+    send_timeout 10; 
+    limit_conn_zone $binary_remote_addr zone=addr:5m; 
+    limit_conn addr 100; 
+    include /etc/nginx/mime.types; 
+    default_type text/html; 
+    charset UTF-8; 
+    gzip on; 
+    gzip_disable "msie6"; 
+    gzip_proxied any; 
+    gzip_min_length 1000; 
+    gzip_comp_level 6; 
+    gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript; 
+    open_file_cache max=100000 inactive=20s; 
+    open_file_cache_valid 30s; 
+    open_file_cache_min_uses 2; 
+    open_file_cache_errors on; 
+    include /etc/nginx/conf.d/*.conf; 
+    include /etc/nginx/sites-enabled/*; 
+}
+```
