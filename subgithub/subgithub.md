@@ -18,3 +18,11 @@ origin https://github.com/yuquan0821/demo.git (push)
 2. git remote add origin git@github.com:yuquan0821/demo.git
 3. git push origin 
 ```
+
+mac下面记住git用户名密码
+```
+在Mac OS X中这个操作竟然如此简单。只需在Terminal中输入如下的命令：
+
+git config --global credential.helper osxkeychain
+然后在git操作时只要输入一次用户名与密码，以后就不用输入了。
+```
