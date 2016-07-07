@@ -26,3 +26,22 @@ mac下面记住git用户名密码
 git config --global credential.helper osxkeychain
 然后在git操作时只要输入一次用户名与密码，以后就不用输入了。
 ```
+
+
+windows下面记住git用户名密码
+```
+git config --global credential.helper cache
+... which tells git to keep your password cached in memory for (by default) 15 minutes. You can set a longer timeout with:
+
+git config --global credential.helper "cache --timeout=3600"
+
+windows系统下:
+Finally, launch a command prompt and type:
+git config --global credential.helper winstore
+Or you can edit your .gitconfig file manually:
+
+[credential]
+    helper = winstore
+git config --global credential.helper store
+```
+
