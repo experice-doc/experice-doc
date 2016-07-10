@@ -17,4 +17,5 @@
     7. [mysql explain](200.system/mysql.explain.md)
     8. [restful api](200.system/restfull.api.md)
     9. [ab 压力测试](200.system/ab.md)
+    10. [linux shell 73条命令](200.system/linux-shell-72.md)
 
