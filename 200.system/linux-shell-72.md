@@ -232,4 +232,5 @@
     查看非root运行的进程 ps -U root -u root -N
     查看用户vivek运行的进程 ps -u vivek
 
-
+75.crontab 查看服务器1分钟跑一次的脚本
+    crontab -l | grep '^*/1' 
