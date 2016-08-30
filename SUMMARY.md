@@ -20,5 +20,6 @@
     10. [linux shell 73条命令](200.system/linux-shell-72.md)
     11. [linux mac vim 配置](200.system/linux-vim.md)
     12. [php7 新特性](200.system/php7.md)
+    13. [ngxtop nginx 监控神器](200.system/ngxtop.md)
 1. [开发规范](specification/specification.md)
 
