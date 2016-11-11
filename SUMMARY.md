@@ -17,7 +17,7 @@
     7. [mysql explain](200.system/mysql.explain.md)
     8. [restful api](200.system/restfull.api.md)
     9. [ab 压力测试](200.system/ab.md)
-    10. [linux shell 73条命令](200.system/linux-shell-72.md)
+    10. [linux shell 77条命令](200.system/linux-shell-72.md)
     11. [linux mac vim 配置](200.system/linux-vim.md)
     12. [php7 新特性](200.system/php7.md)
     13. [ngxtop nginx 监控神器](200.system/ngxtop.md)
