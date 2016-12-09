@@ -324,3 +324,116 @@ imap <silent> <C-e> <Plug>(neocomplcache_snippets_expand)
 smap <silent> <C-e> <Plug>(neocomplcache_snippets_expand)
 
 ```
+
+### VIM代码补全提示功能
+
+```
+vim是一款支持插件、功能无比强大的编辑器，无论你的系统是Linux、unix、mac还是windows，都能够选择他来编辑文件或是进行工程级别 的coding。如果能把vim用好了，不仅编程效率能得到大幅度提高，周围人也会因此而看得头晕眼花佩服不已，自己心里当然也会心花怒放啦。下面就让我 来介绍一下如何来进行配置。这些配置所涉及到的内容有：autocomplpop, ctags, TagList,omnicppcomplete
+首 先Vim是内建代码补全功能的，在不需要通过任何设置的情况下就能使用。在您编辑代码的时候，键入 ctrl+x, ctrl+o, ctrl+n, ctrl+p 等快捷键，就会弹出智能提示的菜单。但是这仍然不满足大家的要求。大多数IDE中，只要代码输入到相应的位置，补全提示就会自动的弹出来，而vim的这种 补全还需要自己手动的来触发。那么下面就介绍一种可以自动弹出补全提示的插件 — autocomplpop
+== Autocomplpop ==
+首先，从http://www.vim.org/scripts/script.PHP?script_id=1879处 下载autocomplpop文件。下载的是一个zip文件，解压后会有三个文件夹，分别是autoload，doc，plugin。到Vim的根目录下，找到名字和这三个一样的文件夹。不同系统目录位置不同。(unix/linux平台在/usr/share/vim/vim71中, windows平台在安装目录的vim71目录中，fedora是/usr/share/vim/vimfiles中）。
+按照文件夹对应的把里面的acp.vim和其他的什么文件都copy过去。然后重启Vim。这时候应该会有错误提示，
+Error detected while processing /home/carlos/.vim/plugin/acp.vim:
+line 13:
+***** L9 library must be installed! *****
+这是插件放出的一个错误提示，查看plugin里的acp.vim可以看到。是缺少L9 library库。这个也是需要下载的。地址在下面
+http://www.vim.org/scripts/script.php?script_id=3252
+下载下来，它也是一个插件形式，以同样的方式copy到Vim目录下。
+安装完后就可以了。
+再就是这个插件默认是没有设置php自动补全的，可以设置一个PHP函数字典，让其根据字典的内容进行自动补全。
+这个是一个PHP字典，php_funclist.
+编辑配置文件.vimrc,在文件后面加上下面的代码
+au FileType php setlocal dict+=~/.vim/php_funclist.txt
+还有每次补全都要按键很费事，所以我们加入PHP的全能提示触发命令。
+php 中 一般是会在 “$”, “->”, “::” 后需要出现自动补全，在 .vimrc 中加入以下代码：
+if !exists(‘g:AutoComplPop_Behavior’)
+let g:AutoComplPop_Behavior = {}
+let g:AutoComplPop_Behavior['php'] = []
+call add(g:AutoComplPop_Behavior['php'], {
+\ ‘command’ : “\\“,
+\ ‘pattern’ : printf(‘−>∥::∥$\k\{%d,}$’, 0),
+\ ‘repeat’ : 0,
+\})
+endif
+这样就可以了。
+注意，某些时候，可能会在第一次按下触发补全的操作符时停顿一会，这可能是因为可匹配的项目过多，Vim正在索引，过后就会快了。
+—————————————————————–
+细心的朋友会发现，光是利用 autocomplpop这个插件还远远达不到要求。比如说：在c++中使用.或是->访问对象或指针中的成员和函数时还无法自动弹出提示，另外， 即便是自动提示也只能提示我们在当前文档中已输入的字符串。针对这种情况，我们就需要安装ctags工具和OmniCppComplete插件。 ctags是用来对文件做标记的工具，OmniCppComplete是在c和c++语言范畴内，对上述智能补全的增强版。
+== ctags ==
+ctags在http://ctags.sourceforge.NET/下载源码，编译后安装。常规的标记命令为 ctags -R 。”-R”表示递归创建，也就包括源代码根目录下的所有子目录下的源程序。
+== CppCompleete ==
+OmniCppComplete在http://www.vim.org/scripts/script.php?script_id=1520下载。下载 好之后根据里面的doc文档进行安装和使用。
+这样一来，代码补全就比较完善了。但是根据以往的经验，IDE中还有一个功能，那就是函数和变量的跳转查看。比如代码中出现
+代码:
+if(true){
+doThis();
+}
+我们想知道doThis()函数是如何定义和实现的，那么如何快速的来查看呢？我们就需要安装Taglist插件
+== Taglist ==
+安装taglist
+先下载，地址是：http://www.vim.org/scripts/script.php?script_id=273，解压出来，根据其中的doc文档进行安装和配置，我是复制到.vim目录下
+cp -r Downloads/taglist/* .vim
+注意：前面的目录根据自己的情况而定
+这就算插件安装完了，接着修改配置文件.vimrc
+[#]sudo vi .vimrc
+//在文件中加入下面两句
+let Tlist_Show_One_File=1
+let Tlist_Exit_OnlyWindow=1
+现在就可以使用了，比如一个程序的目录是/var/www/wbtie/
+在终端中
+cd /var/www/wbtie
+ctags -R
+这时候在目录下会生成一个tags文件，是这个文件夹内所有东西的索引文件
+然后随变vim一个wbtie中的文件，命令输入
+set tags=/var/www/wbtie/tags
+Tlist
+这时候当光标停留在某一个函数或者变量那里的时候左侧也会动态的高亮显示，当你想知道这个变量或者函数是哪里定义的时候，只要敲下Ctrl+]就自动跳到它生命的地方了。 
+
+```
+### mac 注意
+```
+在配置自己的mac的开发环境时，一直没有把vim和ctags 解决好。导致打开文件时经常提示一些莫名的错误，今日有空，捣鼓了一下。
+
+
+两个问题：
+
+1）ctags不乖了。
+
+可能用mac 的人会发现系统已经帮你安装了一个ctags了。不过那个并不是我们常用的，请到这里download一个新版本的，然后按说明编译之。
+
+http://sourceforge.net/projects/ctags/
+完事后，你可能发现仍然不行，我们常用的ctags -R啥的命令都木有，报错大概是：
+
+usage: ctags [-BFadtuwvx] [-f tagsfile] file ...
+
+原因很简单，系统上有两个ctags了。（我安装时没有专门去设置新装的ctags的路径，它被放到了/usr/local/bin下面，而mac os自带的是在/usr/bin/下的)
+
+所以：修改PATH吧。类似这样：
+
+export PATH="/usr/local/bin:$PATH:/Users/kevin/tools"
+如果你对于kevin/tools也感兴趣，我也告诉你这里放了一个小脚本，用于生成ｔａｇｓ的。
+
+[plain] view plain copy
+#!/bin/sh  
+#Filename: omnictags  
+  
+  
+/usr/local/bin/ctags --c++-kinds=+p  --fields=+iaS  --extra=+q "$@"  
+
+一般生成tags文件我就用omnictags -R dir 这样子，减少敲代码和记忆ctags的参数的需求。
+
+2）taglist不乖了。
+
+当你在vim中使用了插件taglist时，可能会报这样的错误。
+
+Taglist: Failed to generate tags for xxxfile
+ctags: illegal option -- -^@usage: ctags [-BFadtuwvx] [-f tagsfile] file ...^@
+原因类似的，因为taglist插件找错了ctags了，故需要对taglist插件加一个配置，把下面这行添加到你的.vimrc配置中即可。
+
+
+let Tlist_Ctags_Cmd='/usr/local/bin/ctags'
+
+当然，目录视你的新ctags安装目录为准。
+
+
+```
