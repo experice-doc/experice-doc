@@ -52,3 +52,33 @@ replicate-ignore-db=mysql　 //要忽略的数据库　
 进入主数据库输入命令:insert into test(name) values('test');
 然后进入从数据库输入命令：select * from test;
 如果此时从数据库有获取到数据，说明同步成功了，主从也就实现了
+
+#### nginx与php-fpm的结合，完整的流程是这样的
+www.example.com
+        |
+        |
+      Nginx
+        |
+        |
+路由到www.example.com/index.php
+        |
+        |
+加载nginx的fast-cgi模块
+        |
+        |
+fast-cgi监听127.0.0.1:9000地址
+        |
+        |
+www.example.com/index.php请求到达127.0.0.1:9000
+        |
+        |
+php-fpm 监听127.0.0.1:9000
+        |
+        |
+php-fpm 接收到请求，启用worker进程处理请求
+        |
+        |
+php-fpm 处理完请求，返回给nginx
+        |
+        |
+nginx将结果通过http返回给浏览器
