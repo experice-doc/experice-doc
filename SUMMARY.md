@@ -23,5 +23,6 @@
     13. [ngxtop nginx 监控神器](200.system/ngxtop.md)
     14. [linux 生成密码 命令](200.system/linux-password.md)
     15. [php 抓取图片类](200.system/image-download.md)
+    16. [mysql 主从](200.system/mysqlslave.md)
 1. [开发规范](specification/specification.md)
 
